@@ -86,12 +86,86 @@ const Flash = ({ active }: { active: boolean }) => (
   </AnimatePresence>
 );
 
+const VaultDoors = ({ onComplete }: { onComplete: () => void, key?: string }) => {
+  useEffect(() => {
+    const timer = setTimeout(onComplete, 3500);
+    return () => clearTimeout(timer);
+  }, [onComplete]);
+
+  return (
+    <motion.div 
+      initial={{ opacity: 1 }}
+      animate={{ opacity: [1, 1, 0] }}
+      exit={{ opacity: 0 }}
+      transition={{ duration: 3.5, times: [0, 0.8, 1], ease: "easeInOut" }}
+      className="fixed inset-0 z-[200] flex items-center justify-center pointer-events-none overflow-hidden"
+    >
+      <div className="absolute inset-0 bg-black" />
+
+      {/* Left Door Handle/Gear mechanism */}
+      <motion.div
+        initial={{ x: 0 }}
+        animate={{ x: '-100%' }}
+        transition={{ duration: 1.5, delay: 1.5, ease: [0.8, 0, 0.2, 1] }}
+        className="absolute left-0 w-1/2 h-full bg-[#0a0a0c] border-r-4 border-silver/40 flex items-center justify-end overflow-hidden shadow-[20px_0_50px_rgba(0,0,0,0.9)]"
+      >
+        <div className="absolute inset-0 cyber-grid opacity-10" />
+        {/* Semi-circle lock core */}
+        <div className="relative w-[80vh] h-[80vh] translate-x-1/2 flex items-center justify-center">
+          <motion.div 
+            animate={{ rotate: [-180, 0] }} 
+            transition={{ duration: 1.2, ease: "easeInOut" }} 
+            className="w-full h-full rounded-full border-[30px] border-[#151515] flex items-center justify-center shadow-inner"
+          >
+            <div className="w-[90%] h-[90%] rounded-full border-4 border-dashed border-silver/30" />
+            <div className="absolute w-[120%] h-4 bg-[#151515]" />
+            <div className="absolute h-[120%] w-4 bg-[#151515]" />
+          </motion.div>
+        </div>
+      </motion.div>
+
+      {/* Right Door */}
+      <motion.div
+        initial={{ x: 0 }}
+        animate={{ x: '100%' }}
+        transition={{ duration: 1.5, delay: 1.5, ease: [0.8, 0, 0.2, 1] }}
+        className="absolute right-0 w-1/2 h-full bg-[#0a0a0c] border-l-4 border-silver/40 flex items-center justify-start overflow-hidden shadow-[-20px_0_50px_rgba(0,0,0,0.9)]"
+      >
+        <div className="absolute inset-0 cyber-grid opacity-10" />
+        <div className="relative w-[80vh] h-[80vh] -translate-x-1/2 flex items-center justify-center">
+          <motion.div 
+            animate={{ rotate: [180, 0] }} 
+            transition={{ duration: 1.2, ease: "easeInOut" }} 
+            className="w-full h-full rounded-full border-[30px] border-[#151515] flex items-center justify-center shadow-inner"
+          >
+            <div className="w-[90%] h-[90%] rounded-full border-4 border-dashed border-silver/30" />
+            <div className="absolute w-[120%] h-4 bg-[#151515]" />
+            <div className="absolute h-[120%] w-4 bg-[#151515]" />
+          </motion.div>
+        </div>
+      </motion.div>
+
+      {/* Center unlocking beam */}
+      <motion.div
+         animate={{ 
+           height: ['0%', '100%', '100%', '100%'],
+           opacity: [1, 1, 0, 0],
+           width: ['4px', '20px', '100vw', '100vw']
+         }}
+         transition={{ duration: 2, times: [0, 0.3, 0.6, 1], ease: "easeIn", delay: 1 }}
+         className="absolute z-10 w-1 h-0 bg-white shadow-[0_0_50px_#fff] mix-blend-screen"
+      />
+    </motion.div>
+  );
+};
+
 export default function App() {
   const [scene, setScene] = useState<Scene>('SILENCE');
   const [terminalLines, setTerminalLines] = useState<string[]>([]);
   const [breachLines, setBreachLines] = useState<string[]>([]);
   const [isGlitched, setIsGlitched] = useState(false);
   const [showFlash, setShowFlash] = useState(false);
+  const [showVault, setShowVault] = useState(false);
 
   const playRevealSound = () => {
     try {
@@ -766,7 +840,10 @@ export default function App() {
                 onClick={() => {
                   startAudio();
                   setScene('BLACK_BOX_ANIMATION');
-                  setTimeout(() => setScene('CONTACT_PAGE'), 3000);
+                  setTimeout(() => {
+                    setShowVault(true);
+                    setScene('CONTACT_PAGE');
+                  }, 3000);
                 }}
                 className="relative cursor-pointer group"
                 style={{ perspective: 1000 }}
@@ -978,6 +1055,10 @@ export default function App() {
       </AnimatePresence>
 
       <Flash active={showFlash} />
+
+      <AnimatePresence>
+        {showVault && <VaultDoors onComplete={() => setShowVault(false)} key="vault" />}
+      </AnimatePresence>
 
       {/* Global Vignette */}
       <div className="fixed inset-0 pointer-events-none vignette opacity-60" />
