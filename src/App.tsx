@@ -643,7 +643,7 @@ export default function App() {
                   className="z-10 w-64 h-80 md:w-80 md:h-96 border border-silver/20 overflow-hidden shadow-[0_0_60px_rgba(192,192,192,0.2)]"
                 >
                   <img 
-                    src="/real.png" 
+                    src="/main.png" 
                     alt="Nitish Raj" 
                     className="object-cover w-full h-full"
                     referrerPolicy="no-referrer"
